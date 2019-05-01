@@ -1,11 +1,20 @@
 from flask import jsonify
 from app import app
 from .main import config
-from .requests import heatmap_requested, path_requested
+from .requests import stations_requested, heatmap_requested, path_requested
 import sys
 import random
 
 G = config()
+
+@app.route('/stations/', methods=['GET'])
+def stations():
+    return jsonify({
+            'status': 'OK',
+            'data': {
+                    'stations': stations_requested(G)
+            }
+    })
 
 @app.route('/heatmap/', methods=['GET'])
 def heatmap():

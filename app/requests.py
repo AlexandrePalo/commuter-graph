@@ -1,4 +1,34 @@
 import networkx as nx
+import sys
+
+def stations_requested(G):
+    '''
+    Generate a list
+    with all stations and lines associated.
+    TODO : edges between stations ?
+    '''
+    stations_requested = []
+
+    for n in G.nodes():
+        exist = False
+
+        for (i, s) in enumerate(stations_requested):
+            if s['uuid'] == G.nodes[n]['station']:
+                stations_requested[i]['latitude'] = (stations_requested[i]['latitude'] + G.nodes[n]['latitude']) / 2
+                stations_requested[i]['longitude'] = (stations_requested[i]['longitude'] + G.nodes[n]['longitude']) / 2
+                stations_requested[i]['lines'].append(G.nodes[n]['line'])
+                exist = True
+
+        if not exist:
+            stations_requested.append({
+                'uuid': G.nodes[n]['station'],
+                'latitude': G.nodes[n]['latitude'],
+                'longitude': G.nodes[n]['longitude'],
+                'lines': [G.nodes[n]['line']],
+                'name': G.nodes[n]['name']
+            })
+    
+    return stations_requested
 
 def heatmap_requested(G, source):
     '''
