@@ -25,7 +25,7 @@ def stations_requested(G):
                 'latitude': G.nodes[n]['latitude'],
                 'longitude': G.nodes[n]['longitude'],
                 'lines': [G.nodes[n]['line']],
-                'name': G.nodes[n]['name']
+                'name': G.nodes[n]['station_name']
             })
     
     return stations_requested

@@ -28,7 +28,8 @@ def get_nodes(input_path, G):
             'name': l[3],
             'latitude': float(l[4].replace('"', '').replace(',', '.')),
             'longitude': float(l[5].replace('"', '').replace(',', '.')),
-            'station': l[6]
+            'station': l[6],
+            'station_name': l[7]
         }
         G.add_node(uuid, **node)
     
