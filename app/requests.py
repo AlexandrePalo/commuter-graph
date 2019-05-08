@@ -1,5 +1,6 @@
 import networkx as nx
 import sys
+from .utils import nodesDurationFromSource, interpolatedValue
 
 def stations_requested(G):
     '''
@@ -34,14 +35,15 @@ def heatmap_requested(G, source):
     '''
     Generate a dictionnary
     with each station as key and duration from source as value
+
+    !!! source must be a node and not a station !!!
     '''
     heatmap_requested = {}
     heatmap_nodes = {}
 
     # With nodes
-    for n in G.nodes():
-        if n != source:
-            heatmap_nodes[n] = nx.dijkstra_path_length(G, source, n, weight='weight')
+    heatmap_nodes = nodesDurationFromSource(source, G)
+
     # Consolidate for station
     for n in heatmap_nodes:
         exists = False
@@ -53,6 +55,45 @@ def heatmap_requested(G, source):
         if not exists:
             heatmap_requested[G.nodes[n]['station']] = heatmap_nodes[n]
     return heatmap_requested
+
+def heatmap_interpolated_requested(G, source, nLat, nLon):
+    '''
+    source must be a node and not a station.
+
+    n: number of lat and lon points. Total: nb^2 points
+    '''
+    # Min max bounds and steps
+    latBounds = {
+        'min': min([G.nodes[n]['latitude'] for n in G.nodes()]),
+        'max': max([G.nodes[n]['latitude'] for n in G.nodes()])
+    }
+    lonBounds = {
+        'min': min([G.nodes[n]['longitude'] for n in G.nodes()]),
+        'max': max([G.nodes[n]['longitude'] for n in G.nodes()])
+    }
+    latBounds['step'] = (latBounds['max'] - latBounds['min']) / (nLat - 1)
+    lonBounds['step'] = (lonBounds['max'] - lonBounds['min']) / (nLon - 1)
+
+    heatmap_interpolated = []
+
+    # Generate interpolated grid
+    heatmap_nodes = nodesDurationFromSource(source, G)
+
+    for i in range(0, nLat):
+        for j in range(0, nLon):
+            latitude = latBounds['min'] + latBounds['step'] * i
+            longitude = lonBounds['min'] + lonBounds['step'] * j
+            duration = interpolatedValue({
+                'latitude': latitude,
+                'longitude': longitude
+                }, G, heatmap_nodes)
+            heatmap_interpolated.append({
+                'latitude': latitude,
+                'longitude': longitude,
+                'duration': duration
+            })
+
+    return heatmap_interpolated
 
 def path_requested(G, source, target):
     '''
