@@ -9,20 +9,23 @@ import random
 
 G = config()
 
+
 @app.route('/stations/', methods=['GET'])
 def stations():
     return jsonify({
-            'status': 'OK',
-            'data': {
-                    'stations': stations_requested(G)
-            }
+        'status': 'OK',
+        'data': {
+            'stations': stations_requested(G)
+        }
     })
+
 
 @app.route('/heatmap/<station_source_uuid>/', methods=['GET'])
 def heatmap(station_source_uuid):
     # source must be a node and not a station
     # grab the first not for this station
-    source = [n for n in list(G.nodes()) if G.nodes[n]['station'] == station_source_uuid][0]
+    source = [n for n in list(G.nodes()) if G.nodes[n]
+              ['station'] == station_source_uuid][0]
 
     return jsonify({
         'status': 'OK',
@@ -30,16 +33,23 @@ def heatmap(station_source_uuid):
             'source': source,
             'heatmap': heatmap_requested(G, source)}
     })
+
+
 @app.route('/heatmap/interpolated/<station_source_uuid>/', methods=['GET'])
 def heatmap_interpolated(station_source_uuid):
-	source = [n for n in list(G.nodes()) if G.nodes[n]['station'] == station_source_uuid][0]
-	return jsonify({
-		'status': 'OK',
-		'data': {
-			'source': source,
-			'heatmap': heatmap_interpolated_requested(G, source, 50, 50)
-		}
-	})
+    source = [n for n in list(G.nodes()) if G.nodes[n]
+              ['station'] == station_source_uuid][0]
+    heatmap = heatmap_interpolated_requested(G, source, 50, 50)
+    return jsonify({
+        'status': 'OK',
+        'data': {
+            'source': source,
+            'heatmap': heatmap['data'],
+            'latStep': heatmap['latStep'],
+            'lonStep': heatmap['lonStep']
+        }
+    })
+
 
 @app.route('/path/', methods=['GET'])
 def path():

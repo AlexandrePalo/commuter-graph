@@ -29,6 +29,31 @@ def interpolatedValue(x, G, heatmap_nodes):
 
     return nominator / denominator
 
+def interpolatedValueIfClose(x, G, heatmap_nodes, threshold):
+    n = len(G.nodes())
+    p = 1
+
+    nominator = 0
+    denominator = 0
+
+    smallestD = float('inf')
+
+    for n in G.nodes():
+        d = geodesical_distance(x, G.nodes[n])
+
+        if d < smallestD:
+            smallestD = d
+
+        # TODO : HANDLE D = 0
+        if d > 0:
+            nominator = nominator + heatmap_nodes[n] / pow(d, p)
+            denominator = denominator + 1 / pow(d, p)
+
+    if smallestD <= threshold:
+        return nominator / denominator
+    else:
+        return False
+
 def geodesical_distance(x, y):
     # Calculate the geodesical distance between point x and y
     # in metter

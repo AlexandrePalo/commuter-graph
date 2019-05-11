@@ -1,6 +1,7 @@
 import networkx as nx
 import sys
-from .utils import nodesDurationFromSource, interpolatedValue
+from .utils import nodesDurationFromSource, interpolatedValueIfClose
+
 
 def stations_requested(G):
     '''
@@ -15,8 +16,10 @@ def stations_requested(G):
 
         for (i, s) in enumerate(stations_requested):
             if s['uuid'] == G.nodes[n]['station']:
-                stations_requested[i]['latitude'] = (stations_requested[i]['latitude'] + G.nodes[n]['latitude']) / 2
-                stations_requested[i]['longitude'] = (stations_requested[i]['longitude'] + G.nodes[n]['longitude']) / 2
+                stations_requested[i]['latitude'] = (
+                    stations_requested[i]['latitude'] + G.nodes[n]['latitude']) / 2
+                stations_requested[i]['longitude'] = (
+                    stations_requested[i]['longitude'] + G.nodes[n]['longitude']) / 2
                 stations_requested[i]['lines'].append(G.nodes[n]['line'])
                 exist = True
 
@@ -28,8 +31,9 @@ def stations_requested(G):
                 'lines': [G.nodes[n]['line']],
                 'name': G.nodes[n]['station_name']
             })
-    
+
     return stations_requested
+
 
 def heatmap_requested(G, source):
     '''
@@ -51,10 +55,12 @@ def heatmap_requested(G, source):
             if G.nodes[n]['station'] == s:
                 exists = True
                 # Mean
-                heatmap_requested[s] = (heatmap_requested[s] + heatmap_nodes[n]) / 2
+                heatmap_requested[s] = (
+                    heatmap_requested[s] + heatmap_nodes[n]) / 2
         if not exists:
             heatmap_requested[G.nodes[n]['station']] = heatmap_nodes[n]
     return heatmap_requested
+
 
 def heatmap_interpolated_requested(G, source, nLat, nLon):
     '''
@@ -83,17 +89,23 @@ def heatmap_interpolated_requested(G, source, nLat, nLon):
         for j in range(0, nLon):
             latitude = latBounds['min'] + latBounds['step'] * i
             longitude = lonBounds['min'] + lonBounds['step'] * j
-            duration = interpolatedValue({
+            duration = interpolatedValueIfClose({
                 'latitude': latitude,
                 'longitude': longitude
-                }, G, heatmap_nodes)
-            heatmap_interpolated.append({
-                'latitude': latitude,
-                'longitude': longitude,
-                'duration': duration
-            })
+            }, G, heatmap_nodes, 1000)
+            if duration != False:
+                heatmap_interpolated.append({
+                    'latitude': latitude,
+                    'longitude': longitude,
+                    'duration': duration
+                })
 
-    return heatmap_interpolated
+    return {
+        'data': heatmap_interpolated,
+        'latStep': latBounds['step'],
+        'lonStep': lonBounds['step']
+    }
+
 
 def path_requested(G, source, target):
     '''
@@ -108,7 +120,7 @@ def path_requested(G, source, target):
             step = {
                 'from': {
                     'station': G.nodes[nodes_path[i - 1]]['station'],
-                    'stop_line': G.nodes[nodes_path[i - 1]]['line'] 
+                    'stop_line': G.nodes[nodes_path[i - 1]]['line']
                 },
                 'to': {
                     'station': G.nodes[nodes_path[i]]['station'],
