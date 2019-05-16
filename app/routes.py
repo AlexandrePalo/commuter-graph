@@ -44,11 +44,10 @@ def path(station_source_uuid, station_target_uuid):
               ['station'] == station_source_uuid][0]
     target = [n for n in list(G.nodes()) if G.nodes[n]
               ['station'] == station_target_uuid][0]
-    p = path_requested(G, source, target)
     return jsonify({
         'status': 'OK',
         'data': {
             'source_node': source,
             'target_node': target,
-            'heatmap': p}
+            'path': path_requested(G, source, target)}
     })
