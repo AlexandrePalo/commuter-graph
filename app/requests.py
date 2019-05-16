@@ -110,6 +110,7 @@ def heatmap_interpolated_requested(G, source, nLat, nLon):
 def path_requested(G, source, target):
     '''
     Generate an array with path information to be exported to front end.
+    source and target must be nodes and not stations.
     '''
     path_requested = []
 

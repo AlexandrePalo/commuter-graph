@@ -20,30 +20,16 @@ def stations():
     })
 
 
-@app.route('/heatmap/<station_source_uuid>/', methods=['GET'])
-def heatmap(station_source_uuid):
-    # source must be a node and not a station
-    # grab the first not for this station
-    source = [n for n in list(G.nodes()) if G.nodes[n]
-              ['station'] == station_source_uuid][0]
-
-    return jsonify({
-        'status': 'OK',
-        'data': {
-            'source': source,
-            'heatmap': heatmap_requested(G, source)}
-    })
-
-
 @app.route('/heatmap/interpolated/<station_source_uuid>/', methods=['GET'])
 def heatmap_interpolated(station_source_uuid):
+    # source must be a node and not a station
     source = [n for n in list(G.nodes()) if G.nodes[n]
               ['station'] == station_source_uuid][0]
     heatmap = heatmap_interpolated_requested(G, source, 50, 50)
     return jsonify({
         'status': 'OK',
         'data': {
-            'source': source,
+            'source_node': source,
             'heatmap': heatmap['data'],
             'latStep': heatmap['latStep'],
             'lonStep': heatmap['lonStep']
@@ -51,14 +37,18 @@ def heatmap_interpolated(station_source_uuid):
     })
 
 
-@app.route('/path/', methods=['GET'])
-def path():
-    source = random.choice(list(G.nodes()))
-    target = random.choice(list(G.nodes()))
+@app.route('/path/<station_source_uuid>/<station_target_uuid>/', methods=['GET'])
+def path(station_source_uuid, station_target_uuid):
+    # source and target must be nodes and not stations
+    source = [n for n in list(G.nodes()) if G.nodes[n]
+              ['station'] == station_source_uuid][0]
+    target = [n for n in list(G.nodes()) if G.nodes[n]
+              ['station'] == station_target_uuid][0]
+    p = path_requested(G, source, target)
     return jsonify({
         'status': 'OK',
         'data': {
-            'source': source,
-            'target': target,
-            'heatmap': path_requested(G, source, target)}
+            'source_node': source,
+            'target_node': target,
+            'heatmap': p}
     })
