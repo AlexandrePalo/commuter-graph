@@ -136,4 +136,10 @@ def path_requested(G, source, target):
 
             path_requested.append(step)
 
+    # Prevent change on first and last station, it makes no sense as front-end request source and target stations and not nodes.
+    if (path_requested[0]['by'] == 'WALK'):
+        path_requested.pop(0)
+    if (path_requested[len(path_requested) - 1]['by'] == 'WALK'):
+        path_requested.pop(len(path_requested) - 1)
+
     return path_requested
