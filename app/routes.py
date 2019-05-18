@@ -1,7 +1,7 @@
 from flask import jsonify
 from app import app
 from .main import config
-from .requests import stations_requested, heatmap_requested, heatmap_interpolated_requested, path_requested
+from .requests import stations_requested, edges_requested, heatmap_requested, heatmap_interpolated_requested, path_requested
 import sys
 import random
 
@@ -16,6 +16,16 @@ def stations():
         'status': 'OK',
         'data': {
             'stations': stations_requested(G)
+        }
+    })
+
+
+@app.route('/edges/', methods=['GET'])
+def edges():
+    return jsonify({
+        'status': 'OK',
+        'data': {
+            'edges': edges_requested(G)
         }
     })
 

@@ -2,12 +2,13 @@ import networkx as nx
 import sys
 from .utils import nodesDurationFromSource, interpolatedValueIfClose
 
+# print('Hello world!', file=sys.stderr)
+
 
 def stations_requested(G):
     '''
     Generate a list
     with all stations and lines associated.
-    TODO : edges between stations ?
     '''
     stations_requested = []
 
@@ -33,6 +34,39 @@ def stations_requested(G):
             })
 
     return stations_requested
+
+
+def edges_requested(G):
+    '''
+    Generate a list
+    with all edges between stations.
+    '''
+    edges_requested = []
+
+    for e in G.edges():
+
+        exist = False
+
+        s1 = G.nodes[e[0]]['station']
+        s2 = G.nodes[e[1]]['station']
+
+        # Avoid change edge
+        if not G.edges[e]['by'].startswith('CHANGE'):
+            for (i, es) in enumerate(edges_requested):
+                # Bidirectional edges
+                if (es['from'] == s1 and es['to'] == s2) or (es['from'] == s2 and es['to'] == s1):
+                    exist = True
+        else:
+            exist = True
+
+        if not exist:
+            edges_requested.append({
+                'from': s1,
+                'to': s2,
+                'by': G.edges[e]['by']
+            })
+
+    return edges_requested
 
 
 def heatmap_requested(G, source):
